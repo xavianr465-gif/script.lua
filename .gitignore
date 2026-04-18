@@ -1,31 +1,4 @@
-MainTab:CreateButton({
-   Name = "EXECUTE AUTO-PUZZLE",
-   Callback = function()
-      -- This checks both common names
-      local paths = {
-          "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua",
-          "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/.lua"
-      }
-      
-      local success_load = false
-      for _, url in ipairs(paths) do
-          if success_load then break end
-          local res = game:HttpGet(url)
-          if res and #res > 10 and not res:find("404") then
-              loadstring(res)()
-              success_load = true
-              Rayfield:Notify({Title = "Success", Content = "Script found and loaded!", Duration = 5})
-          end
-      end
-
-      if not success_load then
-          Rayfield:Notify({Title = "Error", Content = "Could not find 'script.lua' or '.lua' in your repo.", Duration = 10})
-      end
-   end,
-})
-
-
--- // 1. Global Settings Initialization
+-- // 1. Global Settings (Edit these as needed)
 getgenv().autogenSettings = {
     PUZZLES_BEFORE_REJOIN = 15,
     PLAYERS_BEFORE_START = 3,
@@ -38,51 +11,68 @@ getgenv().autogenSettings = {
     DISABLE_RENDERING = false,
     AUTO_HIDE_ABILITY = true,
     RUN_ONLY_WHEN_COOLKIDD = false,
-    WEBHOOK = "",
+    WEBHOOK = "", -- Add your Discord Webhook here if you want logs
 }
 
--- // 2. Load Rayfield Library
+-- // 2. Load UI Library (Rayfield)
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- // 3. Create Main Window
+-- // 3. Create Interface Window
 local Window = Rayfield:CreateWindow({
    Name = "Autogen Interface",
    LoadingTitle = "Autogen Suite",
-   LoadingSubtitle = "New Repository Link",
+   LoadingSubtitle = "GitHub Edition",
    ConfigurationSaving = {
       Enabled = true,
       FolderName = "AutogenConfig",
-      FileName = "Settings"
+      FileName = "MainSettings"
    },
-   KeySystem = false,
+   KeySystem = false, -- No key required
 })
 
--- // 4. Auto Puzzle Tab
-local MainTab = Window:CreateTab("Auto Puzzle", 4483362458)
+-- // 4. Tab Setup
+local MainTab = Window:CreateTab("Main", 4483362458)
+
+MainTab:CreateSection("Auto-Puzzle Control")
 
 MainTab:CreateButton({
    Name = "EXECUTE AUTO-PUZZLE",
    Callback = function()
-      -- FIXED: Points to the raw code file in your new 'script.lua' repository
-      local scriptUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
+      -- THE LINK: This pulls from your repository 'script.lua' and file 'script.lua'
+      local rawUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
       
-      local success, result = pcall(function()
-          return game:HttpGet(scriptUrl)
+      local success, scriptContent = pcall(function()
+          return game:HttpGet(rawUrl)
       end)
       
-      if success and result and not result:find("404") then
-          local run, err = loadstring(result)
-          if run then
-              run()
-              Rayfield:Notify({Title = "Success", Content = "Autogen Running", Duration = 5})
+      if success and scriptContent and not scriptContent:find("404") then
+          local func, err = loadstring(scriptContent)
+          if func then
+              func() -- Starts the engine
+              Rayfield:Notify({Title = "Success", Content = "Autogen is now running!", Duration = 5})
           else
-              Rayfield:Notify({Title = "Script Error", Content = "The code in script.lua has an error.", Duration = 5})
+              -- This means your file on GitHub has a Lua code error
+              Rayfield:Notify({Title = "Script Error", Content = "The code on GitHub is invalid: " .. tostring(err), Duration = 10})
           end
       else
-          -- If this fails, make sure 'script.lua' actually exists in that folder!
-          Rayfield:Notify({Title = "Fetch Failed", Content = "Could not find the script file. Ensure repo is PUBLIC.", Duration = 7})
+          -- This means the link is dead or the repository is PRIVATE
+          Rayfield:Notify({Title = "Fetch Failed", Content = "Could not find script.lua. Make sure repo is PUBLIC.", Duration = 10})
       end
    end,
 })
 
-Rayfield:Notify({Title = "Ready", Content = "Interface Loaded", Duration = 3})
+-- // 5. Visual Toggles
+MainTab:CreateSection("Performance")
+
+MainTab:CreateToggle({
+   Name = "Disable Rendering (Low Lag)",
+   CurrentValue = false,
+   Flag = "RenderToggle",
+   Callback = function(Value)
+      getgenv().autogenSettings.DISABLE_RENDERING = Value
+   end,
+})
+
+Rayfield:Notify({Title = "Interface Ready", Content = "Ready to start grinding.", Duration = 3})
+
+
