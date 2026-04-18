@@ -1,3 +1,7 @@
+-- Change "script.lua" to ".lua" if that is the actual filename
+local scriptUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/.lua"
+
+
 -- // 1. Global Settings Initialization
 getgenv().autogenSettings = {
     PUZZLES_BEFORE_REJOIN = 15,
