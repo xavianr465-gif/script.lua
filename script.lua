@@ -1,4 +1,4 @@
--- // 1. Global Settings
+-- // 1. Configuration
 getgenv().autogenSettings = {
     PUZZLES_BEFORE_REJOIN = 15,
     PLAYERS_BEFORE_START = 3,
@@ -11,7 +11,6 @@ getgenv().autogenSettings = {
     DISABLE_RENDERING = false,
     AUTO_HIDE_ABILITY = true,
     RUN_ONLY_WHEN_COOLKIDD = false,
-    WEBHOOK = "",
 }
 
 -- // 2. UI Setup
@@ -20,8 +19,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Autogen Interface",
    LoadingTitle = "Autogen Suite",
-   LoadingSubtitle = "GitHub Fix Applied",
-   ConfigurationSaving = { Enabled = true, FolderName = "AutogenConfig", FileName = "Settings" },
+   LoadingSubtitle = "Raw Link Logic Applied",
+   ConfigurationSaving = { Enabled = true, FolderName = "AutogenConfig", FileName = "Main" },
    KeySystem = false,
 })
 
@@ -30,26 +29,28 @@ local MainTab = Window:CreateTab("Main", 4483362458)
 MainTab:CreateButton({
    Name = "EXECUTE AUTO-PUZZLE",
    Callback = function()
-      -- This link specifically looks for the NEW file you are about to create
-      local scriptUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
+      -- THIS IS THE CORRECT RAW LINK FOR THE REPO YOU SENT
+      local rawUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
       
       local success, result = pcall(function()
-          return game:HttpGet(scriptUrl)
+          return game:HttpGet(rawUrl)
       end)
       
       if success and result and not result:find("404") then
           local run, err = loadstring(result)
           if run then
               run()
-              Rayfield:Notify({Title = "Success", Content = "Script is running!", Duration = 5})
+              Rayfield:Notify({Title = "Success", Content = "Script fetched and running!", Duration = 5})
           else
-              -- This will trigger if the code inside your script.lua file has a typo
-              Rayfield:Notify({Title = "Script Error", Content = "The code in your GitHub file is broken.", Duration = 8})
+              -- This error means the code INSIDE your script.lua file on GitHub has a typo
+              Rayfield:Notify({Title = "Internal Error", Content = "The code on GitHub is broken.", Duration = 10})
+              warn("Lua Error: " .. tostring(err))
           end
       else
-          Rayfield:Notify({Title = "Fetch Failed", Content = "Did you create the 'script.lua' file yet?", Duration = 10})
+          -- If it still says this, your repo is likely PRIVATE
+          Rayfield:Notify({Title = "Fetch Failed", Content = "Ensure your GitHub Repo is PUBLIC.", Duration = 10})
       end
    end,
 })
 
-Rayfield:Notify({Title = "Loaded", Content = "Ready for execution", Duration = 3})
+Rayfield:Notify({Title = "Ready", Content = "Tap Execute to Begin", Duration = 3})
