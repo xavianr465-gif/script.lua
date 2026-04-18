@@ -1,4 +1,4 @@
--- // 1. Configuration
+-- // 1. Global Settings
 getgenv().autogenSettings = {
     PUZZLES_BEFORE_REJOIN = 15,
     PLAYERS_BEFORE_START = 3,
@@ -13,44 +13,46 @@ getgenv().autogenSettings = {
     RUN_ONLY_WHEN_COOLKIDD = false,
 }
 
--- // 2. UI Setup
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Autogen Interface",
    LoadingTitle = "Autogen Suite",
-   LoadingSubtitle = "Raw Link Logic Applied",
-   ConfigurationSaving = { Enabled = true, FolderName = "AutogenConfig", FileName = "Main" },
+   LoadingSubtitle = "Connection Fixed",
+   ConfigurationSaving = { Enabled = true, FolderName = "AutogenConfig", FileName = "Settings" },
    KeySystem = false,
 })
 
 local MainTab = Window:CreateTab("Main", 4483362458)
 
 MainTab:CreateButton({
-   Name = "EXECUTE AUTO-PUZZLE",
+   Name = "EXECUTE (GITHUB PATH)",
    Callback = function()
-      -- THIS IS THE CORRECT RAW LINK FOR THE REPO YOU SENT
-      local rawUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
+      -- This path is very specific. If your branch is not named "main", it fails.
+      local url = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
+      local success, result = pcall(function() return game:HttpGet(url) end)
       
-      local success, result = pcall(function()
-          return game:HttpGet(rawUrl)
-      end)
-      
-      if success and result and not result:find("404") then
-          local run, err = loadstring(result)
-          if run then
-              run()
-              Rayfield:Notify({Title = "Success", Content = "Script fetched and running!", Duration = 5})
-          else
-              -- This error means the code INSIDE your script.lua file on GitHub has a typo
-              Rayfield:Notify({Title = "Internal Error", Content = "The code on GitHub is broken.", Duration = 10})
-              warn("Lua Error: " .. tostring(err))
-          end
+      if success and not result:find("404") then
+          loadstring(result)()
+          Rayfield:Notify({Title = "Success", Content = "Running from GitHub", Duration = 5})
       else
-          -- If it still says this, your repo is likely PRIVATE
-          Rayfield:Notify({Title = "Fetch Failed", Content = "Ensure your GitHub Repo is PUBLIC.", Duration = 10})
+          Rayfield:Notify({Title = "Fetch Failed", Content = "GitHub link invalid. Try the Pastebin button.", Duration = 10})
       end
    end,
 })
 
-Rayfield:Notify({Title = "Ready", Content = "Tap Execute to Begin", Duration = 3})
+MainTab:CreateButton({
+   Name = "EXECUTE (PASTEBIN PATH)",
+   Callback = function()
+      -- Pastebin is usually more stable for mobile executors
+      local url = "https://pastebin.com/raw/UMuqMbzP"
+      local success, result = pcall(function() return game:HttpGet(url) end)
+      
+      if success and not result:find("404") then
+          loadstring(result)()
+          Rayfield:Notify({Title = "Success", Content = "Running from Pastebin", Duration = 5})
+      else
+          Rayfield:Notify({Title = "Fetch Failed", Content = "Pastebin is down or link is dead.", Duration = 10})
+      end
+   end,
+})
