@@ -1,41 +1,61 @@
-# Compiled Lua sources
-luac.out
+-- // 1. Global Settings Initialization
+getgenv().autogenSettings = {
+    PUZZLES_BEFORE_REJOIN = 15,
+    PLAYERS_BEFORE_START = 3,
+    MAXIMUM_TIMER_SECONDS = 120,
+    MINIMUM_TIMER_SECONDS = 3,
+    RECENT_SERVER_BLOCKLIST_LENGTH = 5,
+    PLAYER_TIMER_CHECK = 1,
+    SWAP_ON_MS4 = true,
+    SKIP_LAST_PUZZLE = false,
+    DISABLE_RENDERING = false,
+    AUTO_HIDE_ABILITY = true,
+    RUN_ONLY_WHEN_COOLKIDD = false,
+    WEBHOOK = "",
+}
 
-# luarocks build files
-*.src.rock
-*.zip
-*.tar.gz
+-- // 2. Load Rayfield Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-# Object files
-*.o
-*.os
-*.ko
-*.obj
-*.elf
+-- // 3. Create Main Window
+local Window = Rayfield:CreateWindow({
+   Name = "Autogen Interface",
+   LoadingTitle = "Autogen Suite",
+   LoadingSubtitle = "New Repository Link",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "AutogenConfig",
+      FileName = "Settings"
+   },
+   KeySystem = false,
+})
 
-# Precompiled Headers
-*.gch
-*.pch
+-- // 4. Auto Puzzle Tab
+local MainTab = Window:CreateTab("Auto Puzzle", 4483362458)
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-*.def
-*.exp
+MainTab:CreateButton({
+   Name = "EXECUTE AUTO-PUZZLE",
+   Callback = function()
+      -- FIXED: Points to the raw code file in your new 'script.lua' repository
+      local scriptUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
+      
+      local success, result = pcall(function()
+          return game:HttpGet(scriptUrl)
+      end)
+      
+      if success and result and not result:find("404") then
+          local run, err = loadstring(result)
+          if run then
+              run()
+              Rayfield:Notify({Title = "Success", Content = "Autogen Running", Duration = 5})
+          else
+              Rayfield:Notify({Title = "Script Error", Content = "The code in script.lua has an error.", Duration = 5})
+          end
+      else
+          -- If this fails, make sure 'script.lua' actually exists in that folder!
+          Rayfield:Notify({Title = "Fetch Failed", Content = "Could not find the script file. Ensure repo is PUBLIC.", Duration = 7})
+      end
+   end,
+})
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
+Rayfield:Notify({Title = "Ready", Content = "Interface Loaded", Duration = 3})
