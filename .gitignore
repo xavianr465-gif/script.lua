@@ -1,5 +1,28 @@
--- Change "script.lua" to ".lua" if that is the actual filename
-local scriptUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/.lua"
+MainTab:CreateButton({
+   Name = "EXECUTE AUTO-PUZZLE",
+   Callback = function()
+      -- This checks both common names
+      local paths = {
+          "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua",
+          "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/.lua"
+      }
+      
+      local success_load = false
+      for _, url in ipairs(paths) do
+          if success_load then break end
+          local res = game:HttpGet(url)
+          if res and #res > 10 and not res:find("404") then
+              loadstring(res)()
+              success_load = true
+              Rayfield:Notify({Title = "Success", Content = "Script found and loaded!", Duration = 5})
+          end
+      end
+
+      if not success_load then
+          Rayfield:Notify({Title = "Error", Content = "Could not find 'script.lua' or '.lua' in your repo.", Duration = 10})
+      end
+   end,
+})
 
 
 -- // 1. Global Settings Initialization
