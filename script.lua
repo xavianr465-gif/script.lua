@@ -11,48 +11,60 @@ getgenv().autogenSettings = {
     DISABLE_RENDERING = false,
     AUTO_HIDE_ABILITY = true,
     RUN_ONLY_WHEN_COOLKIDD = false,
+    WEBHOOK = "",
 }
 
+-- // 2. UI Setup
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Autogen Interface",
-   LoadingTitle = "Autogen Suite",
-   LoadingSubtitle = "Connection Fixed",
-   ConfigurationSaving = { Enabled = true, FolderName = "AutogenConfig", FileName = "Settings" },
+   Name = "Autogen Suite | Mobile",
+   LoadingTitle = "Loading Script...",
+   LoadingSubtitle = "by xavianr465",
+   ConfigurationSaving = { Enabled = true, FolderName = "Autogen", FileName = "Config" },
    KeySystem = false,
 })
 
-local MainTab = Window:CreateTab("Main", 4483362458)
+-- // 3. Main Tab
+local MainTab = Window:CreateTab("Automation", 4483362458)
+
+MainTab:CreateSection("Main Controls")
 
 MainTab:CreateButton({
-   Name = "EXECUTE (GITHUB PATH)",
+   Name = "EXECUTE AUTO-PUZZLE",
    Callback = function()
-      -- This path is very specific. If your branch is not named "main", it fails.
-      local url = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
-      local success, result = pcall(function() return game:HttpGet(url) end)
+      -- This is the exact RAW link needed for your specific repo
+      local scriptUrl = "https://raw.githubusercontent.com/xavianr465-gif/script.lua/main/script.lua"
       
-      if success and not result:find("404") then
-          loadstring(result)()
-          Rayfield:Notify({Title = "Success", Content = "Running from GitHub", Duration = 5})
+      local success, result = pcall(function()
+          return game:HttpGet(scriptUrl)
+      end)
+      
+      if success and result and not result:find("404") then
+          -- This runs the code from your GitHub
+          local run, err = loadstring(result)
+          if run then
+              run()
+              Rayfield:Notify({Title = "Success", Content = "Script Executed!", Duration = 5})
+          else
+              Rayfield:Notify({Title = "Error", Content = "Lua error in GitHub file.", Duration = 5})
+          end
       else
-          Rayfield:Notify({Title = "Fetch Failed", Content = "GitHub link invalid. Try the Pastebin button.", Duration = 10})
+          -- This is the "Not Found" error you keep seeing
+          Rayfield:Notify({Title = "Fetch Failed", Content = "Could not find script.lua. Check GitHub visibility.", Duration = 10})
       end
    end,
 })
 
-MainTab:CreateButton({
-   Name = "EXECUTE (PASTEBIN PATH)",
-   Callback = function()
-      -- Pastebin is usually more stable for mobile executors
-      local url = "https://pastebin.com/raw/UMuqMbzP"
-      local success, result = pcall(function() return game:HttpGet(url) end)
-      
-      if success and not result:find("404") then
-          loadstring(result)()
-          Rayfield:Notify({Title = "Success", Content = "Running from Pastebin", Duration = 5})
-      else
-          Rayfield:Notify({Title = "Fetch Failed", Content = "Pastebin is down or link is dead.", Duration = 10})
-      end
+-- // 4. Settings Tab
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
+
+SettingsTab:CreateToggle({
+   Name = "Disable Rendering",
+   CurrentValue = false,
+   Callback = function(Value)
+      getgenv().autogenSettings.DISABLE_RENDERING = Value
    end,
 })
+
+Rayfield:Notify({Title = "Ready", Content = "Interface Loaded Successfully", Duration = 3})
